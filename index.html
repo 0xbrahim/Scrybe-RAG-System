@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Scrybe — PDF RAG System</title>
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="bg-grid" aria-hidden="true"></div>
+
+<div class="container">
+
+    <!-- Header -->
+    <header class="site-header">
+
+        <div class="brand">
+            <img src="logo.png" alt="Scrybe logo" class="brand-mark">
+            <div class="brand-text">
+                <span class="brand-name">Scrybe</span>
+                <span class="brand-tagline">PDF RAG System, self&#8209;hosted</span>
+            </div>
+        </div>
+
+        <div class="stack-pill">
+            <span>n8n</span>
+            <span class="dot">&middot;</span>
+            <span>Supabase</span>
+            <span class="dot">&middot;</span>
+            <span>Ollama</span>
+        </div>
+
+    </header>
+
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Turn any PDF into a conversation.</h1>
+        <p>Drop in a document, Scrybe reads it, and you ask it whatever you need to know &mdash; no cloud required.</p>
+    </section>
+
+
+    <!-- Pipeline connector -->
+    <div class="pipeline" aria-hidden="true">
+        <div class="pipeline-stage">
+            <span class="pipeline-index">01</span>
+            <span class="pipeline-label">Upload</span>
+        </div>
+        <div class="pipeline-track">
+            <div class="pipeline-dot"></div>
+            <div class="pipeline-dot"></div>
+            <div class="pipeline-dot"></div>
+        </div>
+        <div class="pipeline-stage">
+            <span class="pipeline-index">02</span>
+            <span class="pipeline-label">Process</span>
+        </div>
+        <div class="pipeline-track">
+            <div class="pipeline-dot"></div>
+            <div class="pipeline-dot"></div>
+            <div class="pipeline-dot"></div>
+        </div>
+        <div class="pipeline-stage">
+            <span class="pipeline-index">03</span>
+            <span class="pipeline-label">Chat</span>
+        </div>
+    </div>
+
+
+    <div class="panels">
+
+        <!-- Upload Section -->
+        <section class="upload-card">
+
+            <h2>Upload PDF</h2>
+
+            <div
+                id="dropZone"
+                class="drop-zone"
+            >
+
+                <div class="upload-icon">
+                    📄
+                </div>
+
+                <h3>
+                    Drop your PDF here
+                </h3>
+
+                <p>
+                    or
+                </p>
+
+                <label class="file-button">
+
+                    Choose PDF
+
+                    <input
+                        type="file"
+                        id="pdfInput"
+                        accept=".pdf,application/pdf"
+                        hidden
+                    >
+
+                </label>
+
+                <p
+                    id="fileName"
+                    class="file-name"
+                >
+                    No file selected
+                </p>
+
+            </div>
+
+
+            <button
+                id="uploadButton"
+                class="primary-button"
+            >
+                Process Document
+            </button>
+
+
+            <div
+                id="uploadStatus"
+                class="status"
+            ></div>
+
+        </section>
+
+
+        <!-- Chat Section -->
+        <section class="chat-card">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Chat with your document
+                    </h2>
+
+                    <p class="document-status">
+                        Upload and process a PDF first.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Messages -->
+
+            <div
+                id="chatMessages"
+                class="chat-messages"
+            >
+
+                <div class="message ai">
+
+                    Upload a PDF and I'll help you understand it.
+
+                </div>
+
+            </div>
+
+
+            <!-- Input -->
+
+            <div class="chat-input-container">
+
+                <input
+                    type="text"
+                    id="questionInput"
+                    placeholder="Ask something about your document..."
+                    autocomplete="off"
+                    disabled
+                >
+
+                <button
+                    id="sendButton"
+                    class="primary-button"
+                    disabled
+                >
+                    Send
+                </button>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- Footer -->
+
+    <footer>
+
+        Scrybe runs on
+        <strong>n8n</strong>
+        +
+        <strong>Supabase</strong>
+        +
+        <strong>Ollama</strong>
+        &mdash; your documents never leave your stack.
+
+    </footer>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
