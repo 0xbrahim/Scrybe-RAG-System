@@ -1541,3 +1541,10 @@ AI Answer
 Built with:
 
 **HTML • CSS • JavaScript • n8n • Supabase • PostgreSQL • pgvector • Ollama • Local LLM**
+
+Screenshots:
+<img width="1917" height="1020" alt="1" src="https://github.com/user-attachments/assets/1da0f7cd-1636-4668-9add-b36f3c265772" />
+
+<img width="1917" height="1020" alt="2" src="https://github.com/user-attachments/assets/0bdbb1f3-3713-4397-a6b1-3b034e33ccbe" />
+
+<img width="1917" height="1015" alt="3" src="https://github.com/user-attachments/assets/4a189bb1-2fc9-457f-b999-a9f251c65bb3" />
