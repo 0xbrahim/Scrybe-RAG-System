@@ -1,4 +1,4 @@
-# 📄 PDF AI Assistant — Local RAG Chatbot
+# 📄 Scrybe — PDF AI Assistant — Local RAG Chatbot
 
 A lightweight **Retrieval-Augmented Generation (RAG)** application that allows users to upload PDF documents, process their content, generate embeddings, store the document chunks in a vector database, and then chat with the document using a local Large Language Model.
 
