@@ -1510,31 +1510,6 @@ In particular:
 
 ---
 
-# 📁 Recommended GitHub Structure
-
-```text
-pdf-ai-assistant/
-│
-├── index.html
-├── style.css
-├── app.js
-│
-├── n8n/
-│   ├── pdf-upload-workflow.json
-│   └── pdf-chat-rag-workflow.json
-│
-├── database/
-│   └── README.md
-│
-├── screenshots/
-│   └── ...
-│
-├── .gitignore
-└── README.md
-```
-
----
-
 # ⭐ Conclusion
 
 This project demonstrates how to build a complete local **Retrieval-Augmented Generation system** using open-source and low-code technologies.
