@@ -1,13 +1,12 @@
 // ==========================================
 // n8n Webhook URLs
 // ==========================================
-
+    
 const N8N_UPLOAD_URL =
-    "https://resulting-character-keen-christ.trycloudflare.com/webhook/pdf-upload";
+    "http://localhost:5678/webhook/pdf-upload";
 
 const N8N_CHAT_URL =
-    "https://resulting-character-keen-christ.trycloudflare.com/webhook/chat";
-
+    "http://localhost:5678/webhook/chat";
 
 // ==========================================
 // Global State
