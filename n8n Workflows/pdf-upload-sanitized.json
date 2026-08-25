@@ -1,0 +1,272 @@
+{
+  "name": "pdf-upload",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pdf-upload",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ae5de06e-6a2f-4711-b493-9c0bec843d02",
+      "name": "Webhook",
+      "webhookId": "0136f035-c132-4013-8f59-5b5c15b3a9d6"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "file",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "369c274c-a153-4793-8bf7-72427edd7c3b",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text =\n    $('Extract from File').first().json.text;\n\nconst documentId =\n    $('Generate Document ID').first().json.document_id;\n\nconst filename =\n    $('Generate Document ID').first().json.filename;\n\nconst chunkSize = 4000;\nconst overlap = 500;\n\nconst chunks = [];\n\nlet start = 0;\n\nwhile (start < text.length) {\n\n    const end = Math.min(\n        start + chunkSize,\n        text.length\n    );\n\n    const chunk = text.substring(start, end);\n\n    chunks.push({\n        json: {\n            text: chunk,\n            document_id: documentId,\n            filename: filename\n        }\n    });\n\n    start += chunkSize - overlap;\n}\n\nreturn chunks;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "a030ed61-f801-43de-9385-f9dad6dfff2f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/embed",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "nomic-embed-text"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        896,
+        0
+      ],
+      "id": "dd6da3f3-38c2-4899-ae60-f6c5dbfd434c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const embeddings = $input.all();\n\nconst chunks = $('Code in JavaScript').all();\n\nreturn embeddings.map((item, index) => {\n    return {\n        json: {\n            text: chunks[index].json.text,\n            embedding: item.json.embeddings[0],\n            document_id: chunks[index].json.document_id,\n            filename: chunks[index].json.filename\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "3c237392-3d7f-4210-be01-a540c76b62c8",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "tableId": "document_chunks",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $json.text }}"
+            },
+            {
+              "fieldId": "embedding",
+              "fieldValue": "={{ $json.embedding }}"
+            },
+            {
+              "fieldId": "document_id",
+              "fieldValue": "={{ $json.document_id }}"
+            },
+            {
+              "fieldId": "filename",
+              "fieldValue": "={{ $json.filename }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "6dcffa27-ec1d-4756-a102-c9f694c7fb32",
+      "name": "Create a row"
+    },
+    {
+      "parameters": {
+        "jsCode": "const documentId =\n    Date.now().toString() + \"-\" +\n    Math.random().toString(36).substring(2, 10);\n\nconst fileName =\n    $('Webhook').first().binary.file.fileName;\n\nreturn [{\n    json: {\n        document_id: documentId,\n        filename: fileName\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "11e76b7a-9334-4d00-bb2a-1866317a46e5",
+      "name": "Generate Document ID"
+    },
+    {
+      "parameters": {
+        "content": "## PDF ingestion pipeline\n",
+        "height": 432,
+        "width": 1680
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "67034707-dda1-44dc-9400-4a1fda7ca3d9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9b530505-e281-4a07-9238-43600c4fafd3",
+              "name": "document_id",
+              "value": "={{ $json.document_id }}",
+              "type": "string"
+            },
+            {
+              "id": "135d5fbe-abb7-4857-9017-f2515b2094ac",
+              "name": "filename",
+              "value": "={{ $json.filename }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "094611f9-2741-4f48-9a2b-9206487183c5",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Generate Document ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Document ID": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}

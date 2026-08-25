@@ -1,0 +1,206 @@
+{
+  "name": "PDF Chat - RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f832bdce-77eb-489d-a8a4-6b967bc7b8de",
+      "name": "Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/embed",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "nomic-embed-text"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.body.question }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "c3424446-7ef9-40c2-98dd-de8d27c04be8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://plhyplxwkjqaravyhlct.supabase.co/rest/v1/rpc/match_document_chunks",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "YOUR_SUPABASE_ANON_OR_API_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_SUPABASE_SERVICE_ROLE_OR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  query_embedding: $json.embeddings[0],\n  match_document_id: $('Webhook').first().json.body.document_id,\n  match_count: 5\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "414e70e5-a08f-4f4a-923f-d98bef9f1641",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gemma3:4b"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ \"You are a document question-answering assistant.\\n\\nAnswer the user's question using ONLY the information contained in the provided document context.\\n\\nIf the answer cannot be found in the context, say that the information was not found in the document. Do not invent information.\\n\\nDOCUMENT CONTEXT:\\n\" + $json.context + \"\\n\\nUSER QUESTION:\\n\" + $json.question + \"\\n\\nANSWER:\" }}"
+            },
+            {
+              "name": "stream",
+              "value": "={{ false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        864,
+        0
+      ],
+      "id": "a61a41c2-43dd-491d-b4e6-484e01a0fdf3",
+      "name": "Generate Answer - Gemma"
+    },
+    {
+      "parameters": {
+        "jsCode": "const chunks = $input.all();\n\nconst context = chunks\n  .map((item, index) => {\n    return `--- Document Chunk ${index + 1} ---\\n${item.json.content}`;\n  })\n  .join('\\n\\n');\n\nreturn [\n  {\n    json: {\n      context: context,\n      question: $('Webhook').first().json.body.question,\n      document_id: $('Webhook').first().json.body.document_id\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        0
+      ],
+      "id": "f85306a1-323f-446f-a522-cae9c78e606e",
+      "name": "Build Context"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"answer\": $json.response } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1072,
+        0
+      ],
+      "id": "1b493ddd-91cc-4397-97bd-e34121469016",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "Generate Answer - Gemma",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Answer - Gemma": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "nodeGroups": [],
+  "tags": []
+}
